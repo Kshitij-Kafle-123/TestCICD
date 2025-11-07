@@ -6,6 +6,9 @@ on:
       - express-merge
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
+  push:
+    branches:
+      - express-merge
 
 permissions:
   contents: write       # Required to merge PRs
@@ -13,6 +16,7 @@ permissions:
   actions: read
   checks: read
   security-events: write
+  packages: write
 
 jobs:
   build-and-test:
@@ -81,3 +85,48 @@ jobs:
       - name: Confirm merge
         run: |
           printf 'PR #%s merged into express-merge.\n' "${{ github.event.pull_request.number }}"
+
+  simulate-deploy:
+    name: Simulate Deploy (on merge)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: []
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Simulate Docker image build & push
+        run: |
+          IMAGE1=ghcr.io/${{ github.repository_owner }}/testcicd:${{ github.sha }}
+          IMAGE2=ghcr.io/${{ github.repository_owner }}/testcicd:latest
+          echo "--- Simulation: Docker build & push ---"
+          echo "Would build image: $IMAGE1 and tag $IMAGE2"
+          echo "Build command: docker build -t $IMAGE1 -t $IMAGE2 ."
+          echo "Push command: docker push $IMAGE1 && docker push $IMAGE2"
+          echo "--- End simulation ---"
+          mkdir -p deploy-sim
+          echo "Simulated build for $IMAGE1" > deploy-sim/info.txt
+
+      - name: Upload simulation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-simulation
+          path: deploy-sim
+
+  create-release:
+    name: Create GitHub Release (draft)
+    runs-on: ubuntu-latest
+    needs: simulate-deploy
+    if: github.event_name == 'push'
+    steps:
+      - name: Create draft release
+        uses: actions/create-release@v1
+        with:
+          tag_name: release-${{ github.sha }}
+          release_name: Release ${{ github.sha }}
+          body: |
+            Draft release created for commit ${{ github.sha }}.
+            This release is generated automatically after a merge to `express-merge`.
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
