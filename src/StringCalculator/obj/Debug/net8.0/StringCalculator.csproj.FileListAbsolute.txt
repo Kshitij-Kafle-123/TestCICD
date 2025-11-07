@@ -1,0 +1,12 @@
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\StringCalculator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\StringCalculator.AssemblyInfoInputs.cache
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\StringCalculator.AssemblyInfo.cs
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\StringCalculator.csproj.CoreCompileInputs.cache
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\StringCalculator.sourcelink.json
+C:\Learning\TestCICD\src\StringCalculator\bin\Debug\net8.0\StringCalculator.deps.json
+C:\Learning\TestCICD\src\StringCalculator\bin\Debug\net8.0\StringCalculator.dll
+C:\Learning\TestCICD\src\StringCalculator\bin\Debug\net8.0\StringCalculator.pdb
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\StringCalculator.dll
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\refint\StringCalculator.dll
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\StringCalculator.pdb
+C:\Learning\TestCICD\src\StringCalculator\obj\Debug\net8.0\ref\StringCalculator.dll
