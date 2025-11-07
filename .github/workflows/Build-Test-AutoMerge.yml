@@ -83,4 +83,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Confirm merge
-        run: echo "PR #${{ github.event.pull_request.number }} merged into express-merge."
+        run: |
+          printf 'PR #%s merged into express-merge.\n' "${{ github.event.pull_request.number }}"
