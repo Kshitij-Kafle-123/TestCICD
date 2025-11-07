@@ -48,10 +48,6 @@ jobs:
     needs: build-and-test
     if: success()
 
-  # The reusable workflow writes output to scan-output.log in the workspace.
-  # We keep the existing 'fail on vulnerability' behavior in a small follow-up job so
-  # `auto-merge` can depend on this job.
-
   scan-result-check:
     name: Check scan results
     runs-on: ubuntu-latest
@@ -83,4 +79,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Confirm merge
-        run: echo "PR #${{ github.event.pull_request.number }} merged into express-merge."
+        run: |
+          printf 'PR #%s merged into express-merge.\n' "${{ github.event.pull_request.number }}"
