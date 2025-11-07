@@ -48,19 +48,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install OSV Scanner
-        run: |
-          curl -sSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner-linux -o osv-scanner
-          chmod +x osv-scanner
-
-      - name: Run OSV Scanner
-        run: |
-          ./osv-scanner -r -o scan-results.json .
-          cat scan-results.json
+      - name: Run OSV Scanner (reusable)
+        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.4
+        with:
+          scan-args: "./"
 
       - name: Fail if vulnerabilities found
         run: |
-          if grep -q '"vulns": \[' scan-results.json; then
+          if grep -q "VULNERABILITY" scan-output.log; then
             echo "Vulnerabilities found. Failing workflow."
             exit 1
           fi
