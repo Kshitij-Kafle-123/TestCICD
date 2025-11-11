@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+
+# Copy project files
+COPY src/StringCalculator/*.csproj src/StringCalculator/
+COPY tests/StringCalculator.Tests/*.csproj tests/StringCalculator.Tests/
+COPY *.sln .
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy source code
+COPY src/StringCalculator/. src/StringCalculator/
+COPY tests/StringCalculator.Tests/. tests/StringCalculator.Tests/
+
+# Build and publish
+RUN dotnet build --configuration Release --no-restore
+RUN dotnet publish src/StringCalculator/StringCalculator.csproj -c Release -o /app/publish
+
+# Runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "StringCalculator.dll"]

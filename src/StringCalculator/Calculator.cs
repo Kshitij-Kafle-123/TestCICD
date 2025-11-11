@@ -6,12 +6,7 @@ namespace StringCalculatorLib
 {
     public class Calculator
     {
-        // Adds numbers in a string. Rules:
-        // - Empty string returns 0
-        // - Default delimiters: comma and newline
-        // - Support custom delimiters with //{delim}\n or //[delim1][delim2]\n
-        // - Negative numbers throw ArgumentException listing negatives
-        // - Numbers > 1000 are ignored
+        
         public int Add(string numbers)
         {
             if (string.IsNullOrEmpty(numbers))
@@ -26,7 +21,6 @@ namespace StringCalculatorLib
                 if (end == -1) end = numbers.Length;
                 var delimiterPart = numbers.Substring(2, end - 2);
 
-                // support multiple delimiters in [delim] form
                 if (delimiterPart.StartsWith("[") && delimiterPart.EndsWith("]"))
                 {
                     var temp = delimiterPart;
