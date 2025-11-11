@@ -57,7 +57,7 @@ jobs:
           osv-scanner ./ > scan-output.log || true
 
       - name: Upload scan output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: scan-output
           path: scan-output.log
@@ -68,7 +68,7 @@ jobs:
     needs: scan-dependencies
     steps:
       - name: Download scan output
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: scan-output
           path: .
