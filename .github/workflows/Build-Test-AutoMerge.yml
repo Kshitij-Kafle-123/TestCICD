@@ -87,26 +87,49 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-and-test, scan-result-check]
     if: success()
+    outputs:
+      merged: ${{ steps.merge.outputs.merged }}
     steps:
-      - name: Auto-merge Pull Request
-        uses: peter-evans/enable-pull-request-automerge@v3
+      - name: Attempt to merge pull request via API
+        id: merge
+        uses: actions/github-script@v6
         with:
-          pull-request-number: ${{ github.event.pull_request.number }}
-          merge-method: squash
-          token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.info('No pull_request payload available.');
+              core.setOutput('merged', 'false');
+              return;
+            }
+            try {
+              const res = await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                merge_method: 'squash'
+              });
+              core.info(`Merge response: ${JSON.stringify(res.data)}`);
+              core.setOutput('merged', res.data.merged ? 'true' : 'false');
+            } catch (err) {
+              core.info(`Merge failed: ${err.message}`);
+              core.setOutput('merged', 'false');
+            }
 
-      - name: Confirm merge
+      - name: Confirm merge (log)
         run: |
-          printf 'PR #%s merged into express-merge.\n' "${{ github.event.pull_request.number }}"
+          if [ "${{ steps.merge.outputs.merged }}" = "true" ]; then
+            printf 'PR #%s merged into express-merge.\n' "${{ github.event.pull_request.number }}"
+          else
+            echo "PR was not merged by this job. Skipping deploy steps that require a merge."
+          fi
 
   deploy-to-dockerhub:
     name: Deploy to Docker Hub
     runs-on: ubuntu-latest
-    needs: [build-and-test, scan-result-check]
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+    needs: [auto-merge]
+    if: ${{ github.event_name == 'push' || needs.auto-merge.outputs.merged == 'true' }}
     steps:
       - name: Checkout code
-        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
@@ -144,7 +167,7 @@ jobs:
     needs: deploy-to-dockerhub
     steps:
       - name: Create draft release
-        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+        if: ${{ github.event_name == 'push' || needs.auto-merge.outputs.merged == 'true' || github.event.pull_request.merged == true }}
         uses: actions/create-release@v1
         with:
           tag_name: release-${{ github.sha }}
