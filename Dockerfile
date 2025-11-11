@@ -12,8 +12,8 @@ RUN dotnet restore StringCalculatorSolution.sln
 COPY src/StringCalculator/. src/StringCalculator/
 COPY tests/StringCalculator.Tests/. tests/StringCalculator.Tests/
 
-# Build and publish
-RUN dotnet build --configuration Release --no-restore
+# Build and publish (build the solution to include tests and projects)
+RUN dotnet build StringCalculatorSolution.sln --configuration Release --no-restore
 RUN dotnet publish src/StringCalculator/StringCalculator.csproj -c Release -o /app/publish
 
 # Runtime image
