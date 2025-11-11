@@ -4,10 +4,9 @@ WORKDIR /app
 # Copy project files
 COPY src/StringCalculator/*.csproj src/StringCalculator/
 COPY tests/StringCalculator.Tests/*.csproj tests/StringCalculator.Tests/
-COPY *.sln .
+COPY StringCalculatorSolution.sln .
 
-# Restore dependencies
-RUN dotnet restore
+RUN dotnet restore StringCalculatorSolution.sln
 
 # Copy source code
 COPY src/StringCalculator/. src/StringCalculator/
